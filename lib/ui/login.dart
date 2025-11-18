@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:kliniik_app/service/login_service.dart';
+import 'beranda.dart';
+
+//file login
 
 class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
-  _LoginState createState() => _LoginState();
+  const Login({super.key});
+
+  @override
+  //testing code LoginState dan _loginState
+  State<Login> createState() => LoginState();
 }
 
-class _LoginState extends State<Login> {
+class LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   final _usernameCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,7 +75,37 @@ class _LoginState extends State<Login> {
   Widget _tombolLogin() {
     return Container(
       width: MediaQuery.of(context).size.width,
-      child: ElevatedButton(child: Text("Login"), onPressed: () {}),
+      child: ElevatedButton(
+        child: Text("Login"),
+        onPressed: () async {
+          String username = _usernameCtrl.text;
+          String password = _passwordCtrl.text;
+          await LoginService().login(username, password).then((value) {
+            if (value == true) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Beranda()),
+              );
+            } else {
+              AlertDialog alertDialog = AlertDialog(
+                content: const Text("Username atau Password Tidak Valid"),
+                actions: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("OK"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                  ),
+                ],
+              );
+              showDialog(context: context, builder: (context) => alertDialog);
+            }
+          });
+        },
+      ),
     );
   }
 }
