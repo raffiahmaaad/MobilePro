@@ -23,7 +23,7 @@ class _PoliDetailState extends State<PoliDetail> {
             style: TextStyle(fontSize: 20),
           ),
           Text(
-            "Nama Poli : ${widget.poli.namaDokter}",
+            "Nama Dokter : ${widget.poli.namaDokter}",
             style: TextStyle(fontSize: 20),
           ),
           SizedBox(height: 20),

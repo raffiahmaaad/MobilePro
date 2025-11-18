@@ -1,43 +1,66 @@
 import 'package:flutter/material.dart';
-import '../widget/sidebar.dart';
 import '../model/poli.dart';
-// ignore: unused_import
-import 'poli_detail.dart';
+import '../service/poli_service.dart';
 import 'poli_item.dart';
 import 'poli_form.dart';
 
 class PoliPage extends StatefulWidget {
   const PoliPage({super.key});
+
   @override
   State<PoliPage> createState() => _PoliPageState();
 }
 
 class _PoliPageState extends State<PoliPage> {
+  late Future<List<Poli>> futurePoli;
+
+  @override
+  void initState() {
+    super.initState();
+    futurePoli = PoliService.fetchPoli();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Sidebar(),
       appBar: AppBar(
-        title: const Text("Data Poli"),
+        title: Text("Data Poli"),
         actions: [
           GestureDetector(
-            child: const Icon(Icons.add),
+            child: Icon(Icons.add),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => PoliForm()),
-              );
+              ).then((_) {
+                setState(() {
+                  futurePoli = PoliService.fetchPoli(); // refresh data
+                });
+              });
             },
           ),
         ],
       ),
-      body: ListView(
-        children: [
-          PoliItem(poli: Poli(namaPoli: "Poli Anak", namaDokter: "Dr. A")),
-          PoliItem(poli: Poli(namaPoli: "Poli Kandungan", namaDokter: "Dr. B")),
-          PoliItem(poli: Poli(namaPoli: "Poli Gigi", namaDokter: "Dr. V")),
-          PoliItem(poli: Poli(namaPoli: "Poli THT", namaDokter: "Dr. C")),
-        ],
+      body: FutureBuilder<List<Poli>>(
+        future: futurePoli,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData) {
+            return Center(child: Text("Tidak ada data"));
+          }
+
+          final data = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: data.length,
+            itemBuilder: (context, index) {
+              return PoliItem(poli: data[index]);
+            },
+          );
+        },
       ),
     );
   }
