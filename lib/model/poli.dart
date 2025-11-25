@@ -1,26 +1,18 @@
 class Poli {
   String? id;
-  String namaPoli;
-  String namaDokter;
+  String? namaPoli;
+  String? namaDokter;
 
-  Poli({
-    this.id,
-    required this.namaPoli,
-    required this.namaDokter,
-  });
+  Poli({this.id, this.namaPoli, this.namaDokter});
 
-  factory Poli.fromJson(Map<String, dynamic> json) {
-    return Poli(
-      id: json['id'],
-      namaPoli: json['namaPoli'],
-      namaDokter: json['namaDokter'],
-    );
-  }
+  factory Poli.fromJson(Map<String, dynamic> json) => Poli(
+        id: json["id"]?.toString(),
+        namaPoli: json["nama_poli"] ?? "",
+        namaDokter: json["nama_dokter"] ?? "",
+      );
 
-  Map<String, dynamic> toJson() {
-    return {
-      'namaPoli': namaPoli,
-      'namaDokter': namaDokter,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        "nama_poli": namaPoli ?? "",
+        "nama_dokter": namaDokter ?? "",
+      };
 }

@@ -8,7 +8,10 @@ class PoliItem extends StatelessWidget {
 
   // Method untuk menentukan warna background berdasarkan nama poli
   Color _getBackgroundColor() {
-    switch (poli.namaPoli.toLowerCase()) {
+    // aman dari null
+    final nama = (poli.namaPoli ?? "").toLowerCase();
+
+    switch (nama) {
       case 'poli anak':
         return Colors.lightBlue.shade100;
       case 'poli tht':
@@ -17,9 +20,8 @@ class PoliItem extends StatelessWidget {
         return Colors.lightBlue.shade100;
       case 'poli gigi':
         return Colors.lightBlue.shade100;
-      
       default:
-        return Colors.white; // warna default untuk poli lain
+        return Colors.white; // warna default
     }
   }
 
@@ -29,7 +31,8 @@ class PoliItem extends StatelessWidget {
       child: Card(
         color: _getBackgroundColor(),
         child: ListTile(
-          title: Text(poli.namaPoli),
+          // aman dari null
+          title: Text(poli.namaPoli ?? ""),
         ),
       ),
       onTap: () {
