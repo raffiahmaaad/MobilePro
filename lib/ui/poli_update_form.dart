@@ -1,48 +1,54 @@
 import 'package:flutter/material.dart';
 import '../model/poli.dart';
 import 'poli_detail.dart';
+import '../service/poli_service.dart';
+
+//file poliupdateform13a
 
 class PoliUpdateForm extends StatefulWidget {
   final Poli poli;
-  const PoliUpdateForm({Key? key, required this.poli}) : super(key: key);
+
+  const PoliUpdateForm({super.key, required this.poli});
 
   @override
-  _PoliUpdateFormState createState() => _PoliUpdateFormState();
+  State<PoliUpdateForm> createState() => _PoliUpdateFormState();
 }
 
 class _PoliUpdateFormState extends State<PoliUpdateForm> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _namaPoliCtrl;
-  late TextEditingController _namaDokterCtrl;
+  final _namaPoliCtrl = TextEditingController();
+  final _namaDokterCtrl = TextEditingController();
+
+  Future<Poli> getData() async {
+    Poli data = await PoliService().getById(widget.poli.id.toString());
+    setState(() {
+      _namaPoliCtrl.text = data.namaPoli ?? "";
+      _namaDokterCtrl.text = data.namaDokter ?? "";
+    });
+    return data;
+  }
 
   @override
   void initState() {
     super.initState();
-    _namaPoliCtrl = TextEditingController(text: widget.poli.namaPoli);
-    _namaDokterCtrl = TextEditingController(text: widget.poli.namaDokter);
-  }
-
-  @override
-  void dispose() {
-    _namaPoliCtrl.dispose();
-    _namaDokterCtrl.dispose();
-    super.dispose();
+    getData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Ubah Poli")),
+      appBar: AppBar(
+        title: const Text("Ubah Poli"),
+        backgroundColor: const Color.fromRGBO(5, 5, 237, 0.612),
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
               _fieldNamaPoli(),
-              _fieldNamaDokter(),
               const SizedBox(height: 20),
-              _tombolSimpan(),
+              _tombolSimpan()
             ],
           ),
         ),
@@ -51,48 +57,38 @@ class _PoliUpdateFormState extends State<PoliUpdateForm> {
   }
 
   Widget _fieldNamaPoli() {
-    return TextFormField(
+    return TextField(
       decoration: const InputDecoration(labelText: "Nama Poli"),
       controller: _namaPoliCtrl,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Nama Poli tidak boleh kosong';
-        }
-        return null;
-      },
-    );
-  }
-
-  Widget _fieldNamaDokter() {
-    return TextFormField(
-      decoration: const InputDecoration(labelText: "Nama Dokter"),
-      controller: _namaDokterCtrl,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Nama Dokter tidak boleh kosong';
-        }
-        return null;
-      },
     );
   }
 
   Widget _tombolSimpan() {
     return ElevatedButton(
-      onPressed: () {
-        if (_formKey.currentState!.validate()) {
-          // Update data pada objek yang sama
-          widget.poli.namaPoli = _namaPoliCtrl.text;
-          widget.poli.namaDokter = _namaDokterCtrl.text;
+      onPressed: () async {
+        Poli poli = Poli(
+          namaPoli: _namaPoliCtrl.text,
+          namaDokter: _namaDokterCtrl.text,
+        );
 
-          // Kembali ke halaman sebelumnya dengan membawa data yang sudah diperbarui
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PoliDetail(poli: widget.poli),
-            ),
-          );
-        }
+        String id = widget.poli.id.toString();
+
+        var value = await PoliService().ubah(poli, id);
+
+        // Cegah error use_build_context_synchronously
+        if (!mounted) return;
+
+        Navigator.pop(context);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PoliDetail(poli: value),
+          ),
+        );
       },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color.fromARGB(177, 15, 244, 34),
+      ),
       child: const Text("Simpan Perubahan"),
     );
   }
